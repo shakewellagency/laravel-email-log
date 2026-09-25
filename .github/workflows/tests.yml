@@ -28,6 +28,9 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: pdo_sqlite
           coverage: none
+      # Laravel 10 and 11 are end-of-life and every release carries CVE-2026-48019, so Composer blocks them by default.
+      - if: matrix.laravel == '10.*' || matrix.laravel == '11.*'
+        run: composer config audit.block-insecure false
       - run: composer require "illuminate/support:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
       - run: composer update --prefer-dist --no-interaction
       - run: vendor/bin/phpunit
