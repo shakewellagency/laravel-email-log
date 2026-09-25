@@ -53,7 +53,8 @@ class EmailLogTest extends TestCase
         Mail::to('jane@example.com')->send(new TestMailable);
 
         $email = SentEmail::sole();
-        $this->assertSame(TestMailable::class, $email->mailable);
+        // Laravel 10's Mailable does not pass its class to the mail events.
+        $this->assertSame(version_compare($this->app->version(), '11', '>=') ? TestMailable::class : null, $email->mailable);
         $this->assertSame('0100-ses-message-id', $email->message_id);
     }
 

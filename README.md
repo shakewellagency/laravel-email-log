@@ -1,7 +1,8 @@
 # laravel-email-log
 
 Records every email a Laravel app sends in a `sent_emails` table: from, to, cc, bcc, subject, body, the
-provider's message ID (SES's `X-SES-Message-ID` when sending through SES) and the Mailable or Notification class.
+provider's message ID (SES's `X-SES-Message-ID` when sending through SES) and the Mailable or Notification class
+(Mailable class from Laravel 11; Laravel 10 only passes Notification classes).
 
 - Rows are written after the mail transport accepts the message, so only mail that actually went out is recorded.
 - A logging failure is reported but never fails the send.
