@@ -1,0 +1,35 @@
+{
+    "name": "shakewellagency/laravel-email-log",
+    "description": "Records every email a Laravel app sends in a sent_emails table.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/mail": "^10.0|^11.0|^12.0|^13.0",
+        "illuminate/support": "^10.0|^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^10.5|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shakewell\\EmailLog\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Shakewell\\EmailLog\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Shakewell\\EmailLog\\EmailLogServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
