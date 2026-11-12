@@ -19,5 +19,9 @@ return [
 
         // Where SNS posts the events. Subscribe https://<app>/<path> to the topic.
         'path' => env('EMAIL_LOG_SES_EVENTS_PATH', 'email-log/ses-events'),
+
+        // Requests per minute. Each email produces at least two events (Send and Delivery), and SNS drops a message
+        // after a few retries, so keep this well above the app's peak sending rate.
+        'throttle' => env('EMAIL_LOG_SES_THROTTLE', '1200,1'),
     ],
 ];

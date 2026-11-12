@@ -54,8 +54,9 @@ Setup, per environment:
 | `EMAIL_LOG_SES_TOPIC_ARN` | none | The SNS topic. Events are only accepted from this topic, with a valid AWS signature. |
 | `EMAIL_LOG_SES_CONFIGURATION_SET` | none | The SES configuration set to send through. |
 | `EMAIL_LOG_SES_EVENTS_PATH` | `email-log/ses-events` | Webhook path. |
+| `EMAIL_LOG_SES_THROTTLE` | `1200,1` | Webhook rate limit (requests, minutes). Each email produces at least two events. |
 
 The route has no auth middleware, because SNS can't send a token. It rejects anything not signed by SNS for the
 configured topic, checks the topic before downloading a signing certificate, caches certificates for a day, stores
-each SNS message once, and is throttled to 300 requests a minute. Events are pruned with `EMAIL_LOG_RETENTION_DAYS`.
+each SNS message once, and is throttled (`EMAIL_LOG_SES_THROTTLE`). Events are pruned with `EMAIL_LOG_RETENTION_DAYS`.
 History starts when this is switched on; SES keeps nothing to backfill.

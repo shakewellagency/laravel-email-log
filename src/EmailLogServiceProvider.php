@@ -39,7 +39,7 @@ class EmailLogServiceProvider extends ServiceProvider
         // No middleware group: SNS sends no session or CSRF token. The controller checks the topic and signature.
         if (config('email-log.ses_events.topic_arn') && ! $this->app->routesAreCached()) {
             Route::post(config('email-log.ses_events.path'), SesEventController::class)
-                ->middleware('throttle:300,1')
+                ->middleware('throttle:'.config('email-log.ses_events.throttle'))
                 ->name('email-log.ses-events');
         }
     }

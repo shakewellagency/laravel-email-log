@@ -89,7 +89,9 @@ class SesEventController
             'recipients' => json_encode($detail['recipients']
                 ?? ($affected !== null ? array_column($affected, 'emailAddress') : ($event['mail']['destination'] ?? null))),
             'detail' => json_encode($detail),
-            'occurred_at' => Carbon::parse($detail['timestamp'] ?? $event['mail']['timestamp'] ?? $message['Timestamp']),
+            // insertOrIgnore skips casts, so convert SES's UTC time to the app timezone the datetime cast reads back in.
+            'occurred_at' => Carbon::parse($detail['timestamp'] ?? $event['mail']['timestamp'] ?? $message['Timestamp'])
+                ->setTimezone(config('app.timezone')),
             'created_at' => $now,
             'updated_at' => $now,
         ]);

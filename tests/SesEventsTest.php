@@ -166,6 +166,24 @@ class SesEventsTest extends TestCase
         Http::assertSent(fn ($request) => $request->url() === $url);
     }
 
+    public function test_the_event_time_is_right_when_the_app_is_not_on_utc(): void
+    {
+        config(['app.timezone' => 'Australia/Sydney']);
+        date_default_timezone_set('Australia/Sydney');
+
+        try {
+            $this->postSns($this->notification([
+                'eventType' => 'Delivery',
+                'mail' => ['messageId' => 'ses-7'],
+                'delivery' => ['timestamp' => '2026-11-12T09:59:59.000Z', 'recipients' => ['a@example.com']],
+            ]))->assertNoContent();
+
+            $this->assertTrue(SentEmailEvent::sole()->occurred_at->equalTo('2026-11-12T09:59:59Z'));
+        } finally {
+            date_default_timezone_set('UTC');
+        }
+    }
+
     public function test_the_configuration_set_is_applied_to_the_ses_mailer(): void
     {
         $this->assertSame('app-test', config('services.ses.options.ConfigurationSetName'));
