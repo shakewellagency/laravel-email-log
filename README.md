@@ -30,3 +30,33 @@ package, its `config/sentemails.php` and its published views.
 | `EMAIL_LOG_RETENTION_DAYS` | none | Delete rows older than this when `php artisan model:prune` runs (schedule it daily). |
 
 Query the log through `Shakewell\EmailLog\Models\SentEmail`.
+
+## SES delivery events
+
+Optional. Records what SES did with each email (Send, Delivery, Bounce, Complaint, Reject, DeliveryDelay,
+Rendering Failure) in `sent_email_events`, joined to `sent_emails` on `message_id`:
+
+```php
+SentEmail::where('to', 'like', '%jane@example.com%')->latest('id')->first()->events;
+```
+
+Setup, per environment:
+
+1. In SES (same account and region the app sends from), create an SNS topic and a configuration set with an event
+   destination that publishes the event types above to it. The topic policy must let `ses.amazonaws.com` publish
+   from that configuration set.
+2. Set the env vars below and deploy. Setting `EMAIL_LOG_SES_TOPIC_ARN` registers the webhook route; the
+   configuration set is applied to `services.ses.options` unless the app already sets one there.
+3. Subscribe `https://<app>/email-log/ses-events` to the topic over HTTPS. The app confirms the subscription.
+
+| Env | Default | |
+|---|---|---|
+| `EMAIL_LOG_SES_TOPIC_ARN` | none | The SNS topic. Events are only accepted from this topic, with a valid AWS signature. |
+| `EMAIL_LOG_SES_CONFIGURATION_SET` | none | The SES configuration set to send through. |
+| `EMAIL_LOG_SES_EVENTS_PATH` | `email-log/ses-events` | Webhook path. |
+| `EMAIL_LOG_SES_THROTTLE` | `1200,1` | Webhook rate limit (requests, minutes). Each email produces at least two events. |
+
+The route has no auth middleware, because SNS can't send a token. It rejects anything not signed by SNS for the
+configured topic, checks the topic before downloading a signing certificate, caches certificates for a day, stores
+each SNS message once, and is throttled (`EMAIL_LOG_SES_THROTTLE`). Events are pruned with `EMAIL_LOG_RETENTION_DAYS`.
+History starts when this is switched on; SES keeps nothing to backfill.
